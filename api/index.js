@@ -9,10 +9,11 @@ mongoose.connect("mongodb+srv://abhinavajay20:YTlDkRoyR3y23uu4@cluster0.xowutff.
     console.log("Error connecting to the database"); 
 });
 const portNo = 3000;
+app.use(express.json());
+
 app.listen(portNo,()=>{
     console.log("Server is running on port",portNo);
 });
-
 app.use('/api/auth',authRouter);
 
 
