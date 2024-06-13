@@ -1,6 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.route.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 mongoose.connect("mongodb+srv://abhinavajay20:YTlDkRoyR3y23uu4@cluster0.xowutff.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(()=>{
@@ -10,12 +12,13 @@ mongoose.connect("mongodb+srv://abhinavajay20:YTlDkRoyR3y23uu4@cluster0.xowutff.
 });
 const portNo = 3000;
 app.use(express.json());
+app.use(cookieParser());
 
 app.listen(portNo,()=>{
     console.log("Server is running on port",portNo);
 });
 app.use('/api/auth',authRouter);
-
+app.use('/api/user',userRouter);
 
 app.use((err,req,res,next)=>{
     const statusCode = err.statusCode||500;
