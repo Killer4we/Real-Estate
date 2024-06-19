@@ -38,7 +38,7 @@ export default function CreateListing() {
             setUploading(true);
             setImageUploadError(false);
             const promises = [];
-            for(let i=1;i<files.length;i++){
+            for(let i=0;i<files.length;i++){
                 promises.push(storeImage(files[i]));
             }
             Promise.all(promises).then((urls)=>{
@@ -125,7 +125,7 @@ export default function CreateListing() {
             if(data.success===false){
                 setError(data.message);
             }
-            navigate(`/listing/${data._id}`);
+            // navigate(`/listing/${data._id}`);
         } catch (error) {
             setError(error.message);
             setLoading(false);
