@@ -10,12 +10,14 @@ import Signin from './Pages/Signin'
 import PrivateRoute from './Components/PrivateRoute'
 import CreateListing from './Pages/CreateListing'
 import Listing from './Pages/Listing'
+import Search from './Pages/Search'
 export default function App() {
   return (
     <BrowserRouter>
       <Header/>
       <Routes>
         <Route path='/' element = {<Home/>}></Route>
+        <Route path='/search' element = {<Search/>}/>
         <Route element = {<PrivateRoute/>}>
           <Route path='/profile' element = {<Profile/>}/>
           <Route path='/create-listing' element = {<CreateListing/>}/>
