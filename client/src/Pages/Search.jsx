@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ListingItem from '../Pages/ListingItem';
-
+import ListingItem from "../Pages/ListingItem";
 
 export default function Search() {
   const navigate = useNavigate();
-  const [loading,setLoading] = useState(false);
-  const [listings,setListings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [listings, setListings] = useState([]);
+  const [showMore, setShowMore] = useState(false);
   console.log(listings);
   const [sideBarData, setSideBarData] = useState({
     searchTerm: "",
@@ -39,51 +39,67 @@ export default function Search() {
       });
     }
   };
-  useEffect(()=>{
+  useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const searchTermFromUrl = urlParams.get('searchTerm');
-    const typeFromUrl = urlParams.get('type');
-    const parkingFromUrl = urlParams.get('parking');
-    const furnishedFromUrl = urlParams.get('furnished');
-    const offerFromUrl = urlParams.get('offer');
-    
+    const searchTermFromUrl = urlParams.get("searchTerm");
+    const typeFromUrl = urlParams.get("type");
+    const parkingFromUrl = urlParams.get("parking");
+    const furnishedFromUrl = urlParams.get("furnished");
+    const offerFromUrl = urlParams.get("offer");
 
-    if(
-      searchTermFromUrl||
-      typeFromUrl||
-      parkingFromUrl||
-      furnishedFromUrl||
+    if (
+      searchTermFromUrl ||
+      typeFromUrl ||
+      parkingFromUrl ||
+      furnishedFromUrl ||
       offerFromUrl
-    ){
+    ) {
       setSideBarData({
-        searchTerm:searchTermFromUrl||'',
-        type:typeFromUrl||'all',
-        parking:parkingFromUrl==='true'?true:false,
-        furnished:furnishedFromUrl==='true'?true:false,
-        offer:offerFromUrl==='true'?true:false,
+        searchTerm: searchTermFromUrl || "",
+        type: typeFromUrl || "all",
+        parking: parkingFromUrl === "true" ? true : false,
+        furnished: furnishedFromUrl === "true" ? true : false,
+        offer: offerFromUrl === "true" ? true : false,
       });
     }
 
-    const fetchListings = async ()=>{
+    const fetchListings = async () => {
+      setShowMore(false);
       setLoading(true);
       const searchQuery = urlParams.toString();
       const res = await fetch(`/api/listing/get?${searchQuery}`);
       const data = await res.json();
+      if (data.length > 8) {
+        setShowMore(true);
+      }
       setListings(data);
       setLoading(false);
     };
     fetchListings();
-  },[location.search]);
+  }, [location.search]);
   const handleSubmit = (e) => {
     e.preventDefault();
     const urlParams = new URLSearchParams();
     urlParams.set("searchTerm", sideBarData.searchTerm);
     urlParams.set("type", sideBarData.type);
     urlParams.set("parking", sideBarData.parking);
-    urlParams.set('furnished',sideBarData.furnished);
-    urlParams.set('offer',sideBarData.offer);
+    urlParams.set("furnished", sideBarData.furnished);
+    urlParams.set("offer", sideBarData.offer);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
+  };
+  const onShowMoreClick = async()=>{
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set('startIndex',startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(`/api/listing/get?${searchQuery}`);
+    const data = await res.json();
+    if(data.length<9){
+      setShowMore(false);
+    }
+    setListings([...listings,...data]);
   };
   return (
     <div className="flex flex-col md:flex-row">
@@ -179,14 +195,22 @@ export default function Search() {
           {!loading && listings.length === 0 && (
             <p className="text-xl text-slate-700">No Listing Found</p>
           )}
-          {loading &&(
+          {loading && (
             <p className="text-xl text-slate-700 text-center w-full">Loading</p>
           )}
-          {
-            !loading && listings &&listings.map((listing)=>(
-              <ListingItem key={listing._id} listing = {listing}/>
-            ))
-          }
+          {!loading &&
+            listings &&
+            listings.map((listing) => (
+              <ListingItem key={listing._id} listing={listing} />
+            ))}
+          {showMore && (
+            <button
+              className="text-green-700 hover:underline p-7 w-full text-center"
+              onClick={onShowMoreClick}
+            >
+              Show More
+            </button>
+          )}
         </div>
       </div>
     </div>
